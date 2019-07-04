@@ -9,5 +9,6 @@
 #import <UIKit/UIKit.h>
 
 @interface TimelineViewController : UIViewController
+- (IBAction)didTapLogoutButton:(id)sender;
 
 @end
