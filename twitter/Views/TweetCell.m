@@ -14,21 +14,23 @@
 
 @implementation TweetCell 
 
-- (void)awakeFromNib {
+- (void)awakeFromNib
+{
     [super awakeFromNib];
-    // Initialization code
     [self.tweetRetweet setImage:[UIImage imageNamed:@"retweet-icon-green"] forState:UIControlStateSelected];
     [self.tweetRetweet setImage:[UIImage imageNamed:@"retweet-icon"] forState:UIControlStateNormal];
     [self.tweetFavorite setImage:[UIImage imageNamed:@"favor-icon-red"] forState:UIControlStateSelected];
     [self.tweetFavorite setImage:[UIImage imageNamed:@"favor-icon"] forState:UIControlStateNormal];
-    
-    
+    UITapGestureRecognizer *profileTapGestureRecognizer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(didTapUserProfile:)];
+    [self.tweetImage addGestureRecognizer:profileTapGestureRecognizer];
+    [self.tweetImage setUserInteractionEnabled:YES];
+    [self.delegate tweetCell:self didTap:self.tweet.user];
 }
+
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated
 {
     [super setSelected:selected animated:animated];
-    // Configure the view for the selected state
 }
 
 
@@ -65,23 +67,19 @@
             }
         }];
     }
-    
-   
     [self refreshData];
-    
 }
 
 
+- (IBAction)didTapUserProfile:(id)sender {
+}
+
 - (IBAction)tweetRetweeted:(id)sender
 {
-//    [self.tweetRetweet setImage:[UIImage imageNamed:@"retweet-icon-green"] forState:UIControlStateNormal];
-    
     if (self.tweet.retweeted) {
-        
         self.tweetRetweet.selected = NO;
         self.tweet.retweeted = NO;
         self.tweet.retweetCount -= 1;
-        
         [[APIManager shared] retweet:self.tweet completion:^(Tweet *tweet, NSError *error) {
             if(error){
                 NSLog(@"Error rewtweeting tweet: %@", error.localizedDescription);
@@ -96,7 +94,6 @@
         self.tweetRetweet.selected = YES;
         self.tweet.retweeted = YES;
         self.tweet.retweetCount += 1;
-        
         [[APIManager shared] retweet:self.tweet completion:^(Tweet *tweet, NSError *error) {
             if(error){
                 NSLog(@"Error retweeting tweet: %@", error.localizedDescription);
@@ -107,27 +104,24 @@
         }];
     }
     [self refreshData];
-    
 }
 
 
-- (void) refreshData{
-    // self.tweetText.text = self.tweet.text;
-    //self
-    
+- (void) refreshData
+{
     self.tweet = self.tweet;
-    
     self.tweetUserScreenName.text = self.tweet.user.name;
     self.tweetText.text = self.tweet.text;
     self.tweetUserName.text = self.tweet.user.screenName;
     self.tweetCreatedAt.text = self.tweet.createdAtString;
     self.tweetRetweetCount.text = [NSString stringWithFormat:@"%d", self.tweet.retweetCount];
     self.tweetFavoriteCount.text = [NSString stringWithFormat:@"%d", self.tweet.favoriteCount];
-    
     NSString *profileImageddress = self.tweet.user.profileImageUrl;
     NSURL *profileImageUrl = [NSURL URLWithString:profileImageddress];
     self.tweetImage.image = nil;
     [self.tweetImage setImageWithURL:profileImageUrl];
 }
+
+
 
 @end

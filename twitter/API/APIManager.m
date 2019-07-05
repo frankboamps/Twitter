@@ -127,6 +127,17 @@ static NSString * const consumerSecret = @"0skqVPI0l1M5OYMY3hSn0BCawSZt9dB6wLSde
     
 }
 
+-(void) loadmoregetHomeTimelineWithCompletion:(void (^)(NSArray *, NSError *))completion{
+    [self GET:@"1.1/statuses/home_timeline.json"
+   parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, NSArray *  _Nullable tweetDictionaries) {
+       // Success
+       NSMutableArray *tweets  = [Tweet tweetsWithArray:tweetDictionaries];
+       completion(tweets, nil);
+   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+       // There was a problem
+       completion(nil, error);
+   }];
+}
 
 //    [self GET:@"1.1/statuses/home_timeline.json"
 //   parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, NSArray *  _Nullable tweetDictionaries) {

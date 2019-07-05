@@ -20,5 +20,7 @@
 - (void)unFavorite:(Tweet *)tweet completion:(void (^)(Tweet *, NSError *))completion;
 - (void)retweet:(Tweet *)tweet completion:(void (^)(Tweet *, NSError *))completion;
 - (void)unRetweet:(Tweet *)tweet completion:(void (^)(Tweet *, NSError *))completion;
+- (void)loadmoregetHomeTimelineWithCompletion:(void(^)(NSArray *tweets, NSError *error))completion;
+
 
 @end
