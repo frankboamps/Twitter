@@ -7,10 +7,23 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "APIManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol ProfileViewControllerDelegate
+
+- (void)didTweet:(Tweet *)tweet;
+@end
+
 @interface ProfileViewController : UIViewController
+@property (weak, nonatomic) IBOutlet UIImageView *profileBackgroundImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *profileImageView;
+@property (weak, nonatomic) IBOutlet UILabel *profileUserName;
+@property (weak, nonatomic) IBOutlet UILabel *profileActualUserName;
+@property (weak, nonatomic) IBOutlet UILabel *profileUserBio;
+
+@property (nonatomic, weak) id<ProfileViewControllerDelegate> delegate;
 
 @end
 

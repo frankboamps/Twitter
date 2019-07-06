@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "Tweet.h"
 #import "User.h"
+#import "TTTAttributedLabel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,14 +22,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (weak, nonatomic) IBOutlet UILabel *tweetUserName;
 @property (weak, nonatomic) IBOutlet UILabel *tweetUserScreenName;
 @property (weak, nonatomic) IBOutlet UILabel *tweetCreatedAt;
-@property (weak, nonatomic) IBOutlet UILabel *tweetText;
+@property (weak, nonatomic) IBOutlet TTTAttributedLabel *tweetText;
 @property (weak, nonatomic) IBOutlet UIButton *tweetRetweet;
 @property (weak, nonatomic) IBOutlet UIButton *tweetFavorite;
 @property (weak, nonatomic) IBOutlet UILabel *tweetRetweetCount;
 @property (weak, nonatomic) IBOutlet UILabel *tweetFavoriteCount;
 @property (nonatomic, weak) id<TweetCellDelegate> delegate;
 
-- (IBAction)didTapUserProfile:(id)sender;
+
 - (IBAction)tweetRetweeted:(id)sender;
 - (IBAction)tweetFavorited:(id)sender;
 

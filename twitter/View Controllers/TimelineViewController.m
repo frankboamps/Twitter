@@ -15,11 +15,14 @@
 #import "AppDelegate.h"
 #import "LoginViewController.h"
 #import "InfiniteScrollActivityView.h"
+#import "ProfileViewController.h"
+#import "DateTools.h"
+#import "TTTAttributedLabel.h"
+#import "TweetDetailsViewController.h"
 
 
-@interface TimelineViewController () <ComposeViewControllerDelegate, UITableViewDataSource, UITableViewDelegate, TweetCellDelegate, UIScrollViewDelegate>
-//@interface TimelineViewController () <UITableViewDataSource, UITableViewDelegate>
-@property (weak, nonatomic) IBOutlet UITableView *tweetTableView;// view controller has tableview as a subview
+@interface TimelineViewController () <ComposeViewControllerDelegate, UITableViewDataSource, UITableViewDelegate, TweetCellDelegate, UIScrollViewDelegate, TTTAttributedLabelDelegate, ProfileViewControllerDelegate>
+@property (weak, nonatomic) IBOutlet UITableView *tweetTableView;
 @property(strong, nonatomic) UIRefreshControl *tweetRefreshControl;
 @property (nonatomic, strong) NSMutableArray *tweets;
 @property (assign, nonatomic) BOOL isMoreDataLoading;
@@ -28,22 +31,23 @@
 
 @implementation TimelineViewController
 
-
-bool isMoreDataLoading = false;
+bool isMoreDataLoading = NO;
 InfiniteScrollActivityView* loadingMoreView;
 
 
-- (void)viewDidLoad {
+#pragma mark - viewcontrollwer lifecycle
+- (void)viewDidLoad
+{
     [super viewDidLoad];
-    self.tweetTableView.dataSource = self; // view controller as data source
-    self.tweetTableView.delegate = self; // view controller as delegate
+    self.tweetTableView.dataSource = self;
+    self.tweetTableView.delegate = self;
     self.tweetRefreshControl = [[UIRefreshControl alloc] init];
     [self.tweetRefreshControl addTarget:self action:@selector(beginRefresh:) forControlEvents:UIControlEventValueChanged];
     [self.tweetTableView insertSubview:self.tweetRefreshControl atIndex:0];
-    [[APIManager shared] getHomeTimelineWithCompletion:^(NSArray *tweets, NSError *error) { // API request // API calls calls completion handler
+    [[APIManager shared] getHomeTimelineWithCompletion:^(NSArray *tweets, NSError *error) {
         if (tweets) {
-            self.tweets = tweets; // view controller stores data
-            [self.tweetTableView reloadData]; // reload table view
+            self.tweets = tweets;
+            [self.tweetTableView reloadData];
         } else {
             NSLog(@"😫😫😫 Error getting home timeline: %@", error.localizedDescription);
         }
@@ -53,13 +57,12 @@ InfiniteScrollActivityView* loadingMoreView;
     loadingMoreView = [[InfiniteScrollActivityView alloc] initWithFrame:frame];
     loadingMoreView.hidden = true;
     [self.tweetTableView addSubview:loadingMoreView];
-    
     UIEdgeInsets insets = self.tweetTableView.contentInset;
     insets.bottom += InfiniteScrollActivityView.defaultHeight;
     self.tweetTableView.contentInset = insets;
 }
 
-
+#pragma mark - refresh control
 - (void)beginRefresh:(UIRefreshControl *)refreshControl
 {
     [[APIManager shared] getHomeTimelineWithCompletion:^(NSArray *tweets, NSError *error) {
@@ -73,59 +76,91 @@ InfiniteScrollActivityView* loadingMoreView;
     }];
 }
 
-
+#pragma mark - memory call
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
-
+#pragma mark - UITableViewDataSource
 - (nonnull UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath
-{  // table view requests for cell for row at and use reuse identifier
+{
     TweetCell *cell = [tableView dequeueReusableCellWithIdentifier:@"TweetCell" forIndexPath:indexPath];
-   // TweetCell *cell = [tableView dequeueReusableCellWithIdentifier:@"TweetCell"];
     Tweet *tweet = self.tweets[indexPath.row];
+    cell.delegate = self;
     cell.tweet = tweet;
     cell.tweetUserScreenName.text = tweet.user.name;
     cell.tweetText.text = tweet.text;
     cell.tweetUserName.text = tweet.user.screenName;
     cell.tweetCreatedAt.text = tweet.createdAtString;
+    NSString *pastTime;
+    NSDate *now = [NSDate date];
+    NSDate *tweetDate = tweet.createdAtTime;
+    long monthDiff = [now monthsFrom:tweetDate];
+    long dayDiff = [now daysFrom:tweetDate];
+    long hourDiff = [now hoursFrom:tweetDate];
+    long minuteDiff = [now minutesFrom:tweetDate];
+    long secondDiff = [now secondsFrom:tweetDate];
+    if (monthDiff == 0){
+        if (dayDiff != 0){
+            pastTime = [[NSString stringWithFormat:@"%lu", dayDiff] stringByAppendingString:@"d"];
+        }
+        else if (hourDiff != 0){
+            pastTime = [[NSString stringWithFormat:@"%lu", hourDiff] stringByAppendingString:@"h"];
+        }
+        else if (minuteDiff != 0){
+            pastTime = [[NSString stringWithFormat:@"%lu", minuteDiff] stringByAppendingString:@"m"];
+        }
+        else if (secondDiff != 0){
+            pastTime = [[NSString stringWithFormat:@"%lu", secondDiff] stringByAppendingString:@"s"];
+        }
+        cell.tweetCreatedAt.text = pastTime;
+    }
     cell.tweetRetweetCount.text = [NSString stringWithFormat:@"%d", tweet.retweetCount];
     cell.tweetFavoriteCount.text = [NSString stringWithFormat:@"%d", tweet.favoriteCount];
     NSString *profileImageddress = tweet.user.profileImageUrl;
     NSURL *profileImageUrl = [NSURL URLWithString:profileImageddress];
     cell.tweetImage.image = nil;
     [cell.tweetImage setImageWithURL:profileImageUrl];
-    //[cell.tweetImage setImage: [UIImage imageNamed:@"profile-icon"]];
-    cell.delegate = self;
-    return cell; // returns instance of custom cell
+    return cell;
 }
 
-
+#pragma mark tableView number of rows
 - (NSInteger)tableView:(nonnull UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return self.tweets.count;   //  table view asks for number of rows and returns number from API
+    return self.tweets.count;
 }
 
-
- #pragma mark - Navigation
- // In a storyboard-based application, you will often want to do a little preparation before navigation
- - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+#pragma mark - Navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-     UINavigationController *navigationController = [segue destinationViewController];
-     ComposeViewController *composeController = (ComposeViewController*)navigationController.topViewController;
-     composeController.delegate = self;
- }
+    if([[segue identifier] isEqualToString:@"NavigationToTweet"]){
+        UINavigationController *navigationController = [segue destinationViewController];
+        ComposeViewController *composeController = (ComposeViewController*)navigationController.topViewController;
+        composeController.delegate = self;
+    }
+    else if ([[segue identifier] isEqualToString:@"ProfileViewController"]){
+        UINavigationController *navigationController = [segue destinationViewController];
+        ProfileViewController *profileController = (ProfileViewController *)navigationController;
+        profileController.delegate = self;
+    }
+    else if ([[segue identifier] isEqualToString:@"detailView"]){
+        UITableViewCell *tappedCell = sender;
+        NSIndexPath *indexPath = [self.tweetTableView indexPathForCell:tappedCell];
+        Tweet *tweet = self.tweets[indexPath.row];
+        TweetDetailsViewController *tweetDetailViewController = [segue destinationViewController];
+        tweetDetailViewController.tweet = tweet;
+    }
+}
 
-
+# pragma mark - reloading data
 - (void)didTweet:(nonnull Tweet *)tweet
 {
-    [self.tweets addObject:tweet];
+    [self.tweets insertObject:tweet atIndex: 0];
     [self.tweetTableView reloadData];
 }
 
-
+#pragma mark - LogoutButton
 - (IBAction)didTapLogoutButton:(id)sender
 {
     AppDelegate *appDelegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
@@ -135,45 +170,25 @@ InfiniteScrollActivityView* loadingMoreView;
     [[APIManager shared] logout];
 }
 
-
--(NSString *)dateDiff:(NSString *)origDate
-{
-    NSDateFormatter *df = [[NSDateFormatter alloc] init];
-    [df setFormatterBehavior:NSDateFormatterBehavior10_4];
-    [df setDateFormat:@"EEE, dd MMM yy HH:mm:ss VVVV"];
-    NSDate *convertedDate = [df dateFromString:origDate];
-    NSDate *todayDate = [NSDate date];
-    double ti = [convertedDate timeIntervalSinceDate:todayDate];
-    ti = ti * -1;
-    if(ti < 1) {
-        return @"never";
-    } else  if (ti < 60) {
-        return @"less than a minute ago";
-    } else if (ti < 3600) {
-        int diff = round(ti / 60);
-        return [NSString stringWithFormat:@"%d minutes ago", diff];
-    } else if (ti < 86400) {
-        int diff = round(ti / 60 / 60);
-        return[NSString stringWithFormat:@"%d hours ago", diff];
-    } else if (ti < 2629743) {
-        int diff = round(ti / 60 / 60 / 24);
-        return[NSString stringWithFormat:@"%d days ago", diff];
-    } else {
-        return @"never";
-    }
-}
-
-
+#pragma  mark - TweetCellDelegate
 - (void)tweetCell:(TweetCell *)tweetCell didTap:(User *)user
 {
-    [self performSegueWithIdentifier:@"profileSegue" sender:user];
+    [self performSegueWithIdentifier:@"ProfileViewController" sender:user];
 }
 
-
--(void) loadMoreData{
-    [[APIManager shared] getHomeTimelineWithCompletion:^(NSArray *tweets, NSError *error) {
+#pragma mark - Load more data
+-(void) loadMoreData
+{
+    NSNumberFormatter *f = [[NSNumberFormatter alloc] init];
+    f.numberStyle = NSNumberFormatterDecimalStyle;
+    Tweet *tweetId = [self.tweets  lastObject];
+    NSNumber *myIdNumber = [f numberFromString: tweetId.idStr];
+    long long myIdInt = [myIdNumber longLongValue] -1 ;
+    NSNumber *myMaxId = @(myIdInt);
+    NSDictionary *parameters = @{@"max_id": myMaxId};
+    [[APIManager shared]loadmoregetHomeTimelineWithparam:parameters completion:^(NSArray *tweets, NSError *error){
         if (tweets) {
-            self.tweets = tweets;
+            [self.tweets addObjectsFromArray:tweets];
             [self.tweetTableView reloadData];
         }
         else {
@@ -183,9 +198,9 @@ InfiniteScrollActivityView* loadingMoreView;
         }
         [self.tweetRefreshControl endRefreshing];
     }];
-    //[task resume];
 }
 
+#pragma  mark - Infinite Scroll implementation
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     if(!self.isMoreDataLoading){
@@ -197,8 +212,18 @@ InfiniteScrollActivityView* loadingMoreView;
             loadingMoreView.frame = frame;
             [loadingMoreView startAnimating];
             [self loadMoreData];
+        }
     }
 }
+
+#pragma mark - attributing links
+- (void)attributedLabel:(TTTAttributedLabel *)label didSelectLinkWithURL:(NSURL *)url {
+    UIApplication *application = [UIApplication sharedApplication];
+    [application openURL:url options:@{} completionHandler:^(BOOL success) {
+        if (success) {
+            NSLog(@"Opened url");
+        }
+    }];
 }
 
 @end

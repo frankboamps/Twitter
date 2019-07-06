@@ -7,26 +7,47 @@
 //
 
 #import "ProfileViewController.h"
+#import "Tweet.h"
+#import "UIImageView+AFNetworking.h"
+#import "DateTools.h"
+#import "APIManager.h"
+#import "TTTAttributedLabel.h"
 
 @interface ProfileViewController ()
+@property (weak, nonatomic) IBOutlet UIImageView *profileBackgroundImage;
+@property (weak, nonatomic) IBOutlet UIImageView *profileImage;
+@property (weak, nonatomic) IBOutlet UILabel *profileScreenName;
+@property (weak, nonatomic) IBOutlet UILabel *profileUser;
+@property (weak, nonatomic) IBOutlet UILabel *profileBio;
 
 @end
 
 @implementation ProfileViewController
 
-- (void)viewDidLoad {
+#pragma mark - View controller life cycle
+- (void)viewDidLoad
+{
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+//    self.profileUser.text = self.tweet.user.name;
+   self.profileScreenName.text = self.tweet.user.screenName;
+//    NSString *formattedDate = self.tweet.createdAtString;
+//    self.datePosted.text = formattedDate;
+//    self.tweetText.enabledTextCheckingTypes = NSTextCheckingTypeLink;
+    
+    NSString *profileImageAddress = self.tweet.user.profileImageUrl;
+    NSURL *profileImageUrl = [NSURL URLWithString:profileImageAddress];
+    self.profileImage.image = nil;
+    [self.profileImage setImageWithURL:profileImageUrl];
 }
 
 /*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
 
 @end

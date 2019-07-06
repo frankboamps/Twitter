@@ -17,7 +17,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic) NSString * profileImageUrl;
 -(instancetype) initWithDictionary : (NSDictionary *)dictionary;
 
-
 @end
 
 NS_ASSUME_NONNULL_END

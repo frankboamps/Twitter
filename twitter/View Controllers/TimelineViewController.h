@@ -7,9 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Tweet.h"
+
 
 @interface TimelineViewController : UIViewController
 
 - (IBAction)didTapLogoutButton:(id)sender;
+
 
 @end
