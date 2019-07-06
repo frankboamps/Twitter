@@ -19,6 +19,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *profileScreenName;
 @property (weak, nonatomic) IBOutlet UILabel *profileUser;
 @property (weak, nonatomic) IBOutlet UILabel *profileBio;
+@property (weak, nonatomic) IBOutlet UITableView *profileTableView;
 
 @end
 
@@ -28,16 +29,12 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-//    self.profileUser.text = self.tweet.user.name;
-   self.profileScreenName.text = self.tweet.user.screenName;
-//    NSString *formattedDate = self.tweet.createdAtString;
-//    self.datePosted.text = formattedDate;
-//    self.tweetText.enabledTextCheckingTypes = NSTextCheckingTypeLink;
-    
-    NSString *profileImageAddress = self.tweet.user.profileImageUrl;
+    self.profileUser.text = self.user.name;
+    self.profileScreenName.text = self.user.screenName;
+    NSString *profileImageAddress = self.user.profileImageUrl;
     NSURL *profileImageUrl = [NSURL URLWithString:profileImageAddress];
     self.profileImage.image = nil;
-    [self.profileImage setImageWithURL:profileImageUrl];
+   [self.profileImage setImageWithURL:profileImageUrl];
 }
 
 /*

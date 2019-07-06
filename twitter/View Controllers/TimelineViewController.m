@@ -90,7 +90,17 @@ InfiniteScrollActivityView* loadingMoreView;
     cell.delegate = self;
     cell.tweet = tweet;
     cell.tweetUserScreenName.text = tweet.user.name;
-    cell.tweetText.text = tweet.text;
+    TTTAttributedLabel *attributedLabel = [[TTTAttributedLabel alloc] initWithFrame:CGRectZero];
+    NSAttributedString *attString = [[NSAttributedString alloc] initWithString:tweet.text
+                                                                    attributes:@{
+                                                                                 (id)kCTForegroundColorAttributeName : (id)[UIColor blackColor].CGColor,
+                                                                                 NSFontAttributeName : [UIFont fontWithName:@"HelveticaNeue-light" size:16.0f],
+                                                                                 NSKernAttributeName : [NSNull null],
+                                                                                 (id)kTTTBackgroundFillColorAttributeName : (id)[UIColor whiteColor].CGColor
+                                                                                 }];
+    cell.tweetText.enabledTextCheckingTypes = NSTextCheckingTypeLink;
+    cell.tweetText.delegate = self;
+    cell.tweetText.text = attString;
     cell.tweetUserName.text = tweet.user.screenName;
     cell.tweetCreatedAt.text = tweet.createdAtString;
     NSString *pastTime;
@@ -141,12 +151,18 @@ InfiniteScrollActivityView* loadingMoreView;
     }
     else if ([[segue identifier] isEqualToString:@"ProfileViewController"]){
         UINavigationController *navigationController = [segue destinationViewController];
+        UITableViewCell *tappedCell = sender;
+        NSIndexPath *indexPath = [self.tweetTableView indexPathForCell:tappedCell];
+        Tweet *tweet = self.tweets[indexPath.row];
+        User *user = tweet.user;
         ProfileViewController *profileController = (ProfileViewController *)navigationController;
         profileController.delegate = self;
+        profileController.user = user;
     }
     else if ([[segue identifier] isEqualToString:@"detailView"]){
         UITableViewCell *tappedCell = sender;
         NSIndexPath *indexPath = [self.tweetTableView indexPathForCell:tappedCell];
+    
         Tweet *tweet = self.tweets[indexPath.row];
         TweetDetailsViewController *tweetDetailViewController = [segue destinationViewController];
         tweetDetailViewController.tweet = tweet;

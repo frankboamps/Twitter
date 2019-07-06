@@ -12,7 +12,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol ProfileViewControllerDelegate
-
 - (void)didTweet:(Tweet *)tweet;
 @end
 
@@ -24,7 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (weak, nonatomic) IBOutlet UILabel *profileUserBio;
 
 @property (nonatomic, weak) id<ProfileViewControllerDelegate> delegate;
-
+@property(nonatomic, strong)Tweet *tweet;
+@property(nonatomic, strong)User *user;
 @end
 
 NS_ASSUME_NONNULL_END

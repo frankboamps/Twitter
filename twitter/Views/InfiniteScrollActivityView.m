@@ -17,6 +17,7 @@ static CGFloat _defaultHeight = 60.0;
     return _defaultHeight;
 }
 
+#pragma mark - initiating coder
 - (instancetype)initWithCoder:(NSCoder *)aDecoder{
     self = [super initWithCoder:aDecoder];
     if(self){
@@ -25,6 +26,7 @@ static CGFloat _defaultHeight = 60.0;
     return self;
 }
 
+#pragma mark - initiating frame
 - (instancetype)initWithFrame:(CGRect)frame{
     self = [super initWithFrame:frame];
     if(self){
@@ -33,11 +35,13 @@ static CGFloat _defaultHeight = 60.0;
     return self;
 }
 
+#pragma mark - setting layout subviews
 - (void)layoutSubviews{
     [super layoutSubviews];
     activityIndicatorView.center = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2);
 }
 
+#pragma mark - setting up activity
 - (void)setupActivityIndicator{
     activityIndicatorView = [[UIActivityIndicatorView alloc] init];
     activityIndicatorView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
@@ -45,11 +49,13 @@ static CGFloat _defaultHeight = 60.0;
     [self addSubview:activityIndicatorView];
 }
 
+#pragma mark - stopping animation
 -(void)stopAnimating{
     [activityIndicatorView stopAnimating];
     self.hidden = true;
 }
 
+#pragma mark - starting animation
 -(void)startAnimating{
     self.hidden = false;
     [activityIndicatorView startAnimating];

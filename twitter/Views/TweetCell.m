@@ -14,6 +14,7 @@
 
 @implementation TweetCell 
 
+#pragma mark - awake from Nib
 - (void)awakeFromNib
 {
     [super awakeFromNib];
@@ -27,13 +28,13 @@
     [self.delegate tweetCell:self didTap:self.tweet.user];
 }
 
-
+#pragma mark - set selecting animation
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated
 {
     [super setSelected:selected animated:animated];
 }
 
-
+#pragma mark - implementing tweet favorite button
 - (IBAction)tweetFavorited:(id)sender
 {
     if (self.tweet.favorited){
@@ -65,12 +66,12 @@
     [self refreshData];
 }
 
-
+#pragma mark - implementing tap gesture
 - (void) didTapUserProfile:(UITapGestureRecognizer *)sender {
    [self.delegate tweetCell:self didTap:self.tweet.user];
 }
 
-
+#pragma mark - implementing retweets
 - (IBAction)tweetRetweeted:(id)sender
 {
     if (self.tweet.retweeted) {
@@ -102,7 +103,7 @@
     [self refreshData];
 }
 
-
+#pragma mark - implementing data refresh
 - (void) refreshData
 {
     self.tweet = self.tweet;

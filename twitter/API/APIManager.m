@@ -52,11 +52,9 @@ static NSString * const consumerSecret = @"0skqVPI0l1M5OYMY3hSn0BCawSZt9dB6wLSde
 {
     [self GET:@"1.1/statuses/home_timeline.json"
    parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, NSArray *  _Nullable tweetDictionaries) {
-       // Success
        NSMutableArray *tweets  = [Tweet tweetsWithArray:tweetDictionaries];
        completion(tweets, nil);
    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-       // There was a problem
        completion(nil, error);
    }];
 }
@@ -138,5 +136,18 @@ static NSString * const consumerSecret = @"0skqVPI0l1M5OYMY3hSn0BCawSZt9dB6wLSde
    }];
 }
 
+#pragma mark - user profile
+
+- (void)getUserProfile:(User *)user completion:(void(^)(NSArray *tweets, NSError *error))completion
+{
+    NSDictionary *parameters = @{@"screen_name": [user screenName]};
+    [self GET:@"1.1/statuses/user_timeline.json"
+   parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, NSArray *  _Nullable tweetDictionaries) {
+       NSMutableArray *tweets  = [Tweet tweetsWithArray:tweetDictionaries];
+       completion(tweets, nil);
+   } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+       completion(nil, error);
+   }];
+}
 
 @end
